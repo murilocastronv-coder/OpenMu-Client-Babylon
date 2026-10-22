@@ -1,6 +1,7 @@
 /* Mobile HUD for OpenMU Babylon client. Desktop is unchanged. */
 #mobile-hud { display:none; }
 @media (pointer: coarse), (max-width: 800px) {
+  #mobile-hud { display:block; }
   #mobile-hud { position:fixed; inset:0; z-index:9999; pointer-events:none; color:#fff; font:600 12px/1.1 Arial,sans-serif; touch-action:none; }
   #mobile-hud * { box-sizing:border-box; }
   #mobile-hud .mh-button, #mobile-hud #mh-stick, #mobile-hud #mh-stick-knob { pointer-events:auto; touch-action:none; -webkit-user-select:none; user-select:none; }
