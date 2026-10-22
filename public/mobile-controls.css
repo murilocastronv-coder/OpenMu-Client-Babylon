@@ -14,9 +14,15 @@
   #mh-actions { position:absolute; right:max(12px,env(safe-area-inset-right)); bottom:max(16px,env(safe-area-inset-bottom)); display:grid; grid-template-columns:repeat(3,48px); grid-template-rows:repeat(2,48px); gap:7px; align-items:center; justify-items:center; }
   #mh-actions .mh-attack { width:58px;height:58px; grid-column:3;grid-row:1 / span 2; border-color:#ffcf75; background:radial-gradient(circle at 35% 25%,#8d3b25,#29120f 72%); }
   #mh-actions .mh-skill { width:46px;height:46px; }
-  #mh-top { position:absolute; top:max(8px,env(safe-area-inset-top)); left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); display:flex; justify-content:space-between; gap:5px; align-items:flex-start; }
-  #mh-top .mh-group { display:flex; gap:5px; flex-wrap:wrap; max-width:72%; }
-  #mh-top .mh-button { min-width:40px; min-height:40px; border-radius:10px; }
+  #mh-top { position:absolute; top:max(8px,env(safe-area-inset-top)); left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); display:flex; justify-content:flex-start; gap:5px; align-items:flex-start; overflow-x:auto; overflow-y:hidden; max-width:calc(100vw - 16px); padding-bottom:4px; scrollbar-width:none; }
+  #mh-top::-webkit-scrollbar { display:none; }
+  #mh-top .mh-group { display:flex; flex:0 0 auto; gap:5px; flex-wrap:nowrap; max-width:none; }
+  #mh-top .mh-button { flex:0 0 auto; min-width:38px; min-height:38px; border-radius:10px; font-size:11px; }
+  #mh-top .mh-button[aria-label="Character"], #mh-top .mh-button[aria-label="Inventory"], #mh-top .mh-button[aria-label="Map"], #mh-top .mh-button[aria-label="Chat"], #mh-top .mh-button[aria-label="Options"] { min-width:42px; padding:4px; }
+  @media (max-width:420px) {
+    #mh-top .mh-button[aria-label="Character"] { font-size:10px; }
+    #mh-top .mh-button[aria-label="Chat"] { font-size:10px; }
+  }
   #mh-toggle { position:absolute; right:max(10px,env(safe-area-inset-right)); top:50%; transform:translateY(-50%); min-width:36px; min-height:52px; border-radius:10px 0 0 10px; opacity:.85; }
   #mobile-hud.mh-hidden #mh-stick, #mobile-hud.mh-hidden #mh-actions, #mobile-hud.mh-hidden #mh-top { display:none; }
   #mobile-hud.mh-hidden #mh-toggle { top:max(12px,env(safe-area-inset-top)); transform:none; }
