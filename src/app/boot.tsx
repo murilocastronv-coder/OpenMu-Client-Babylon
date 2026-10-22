@@ -101,6 +101,14 @@ reaction(
   name => setKeyProfile(name)
 );
 
+// On touch devices, the virtual mobile joystick uses the client's WASD walk path.
+if (
+  typeof window !== 'undefined' &&
+  (window.matchMedia('(pointer: coarse)').matches || window.innerWidth <= 800)
+) {
+  GameOptions.wsadMovement = true;
+}
+
 const canvas = document.querySelector('canvas')!;
 
 let useAntialiaing = false;

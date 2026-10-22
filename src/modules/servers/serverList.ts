@@ -30,6 +30,9 @@ const MAX_BYTES = 64 * 1024;
 /** Enough for any real list; a longer file is a mistake or an attack. */
 const MAX_ENTRIES = 50;
 
+/** A remote community list must never leave the server picker stuck loading. */
+const FETCH_TIMEOUT_MS = 8000;
+
 const MAX_FIELD = 60;
 
 /**
@@ -359,11 +362,19 @@ export async function refreshServerList(): Promise<void> {
   ServerList.set('loading');
 
   try {
-    const response = await fetch(url, { cache: 'no-cache' });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    let response: Response;
+    let body: string;
+    try {
+      response = await fetch(url, { cache: 'no-cache', signal: controller.signal });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      body = await response.text();
+    } finally {
+      clearTimeout(timeout);
+    }
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-    const text = (await response.text()).slice(0, MAX_BYTES);
+    const text = body.slice(0, MAX_BYTES);
     const entries = parseServerList(text);
 
     ServerConfig.setListed(entries);
