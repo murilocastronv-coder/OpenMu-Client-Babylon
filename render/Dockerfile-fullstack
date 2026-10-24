@@ -1,0 +1,33 @@
+# Experimental single-service OpenMU + Babylon client + WebSocket gateway.
+# Demo mode allows a first live multiplayer test without a database; use DB_MODE=postgres
+# and DB_* variables for persistent accounts/progress after provisioning PostgreSQL.
+FROM munique/openmu:latest AS openmu
+
+FROM oven/bun:1.1.21 AS build
+WORKDIR /client
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
+COPY . .
+RUN bun run build
+
+FROM oven/bun:1.1.21
+WORKDIR /client
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl gnupg debian-archive-keyring debian-keyring && \
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg && \
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list && \
+    apt-get update && apt-get install -y --no-install-recommends caddy && \
+    rm -rf /var/lib/apt/lists/* && \
+    curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh && \
+    bash /tmp/dotnet-install.sh --runtime aspnetcore --channel 10.0 --install-dir /usr/share/dotnet && \
+    rm /tmp/dotnet-install.sh
+ENV DOTNET_ROOT=/usr/share/dotnet
+ENV PATH="/usr/share/dotnet:${PATH}"
+COPY --from=openmu /app /openmu
+COPY --from=build /client /client
+COPY render/Caddyfile-fullstack /etc/caddy/Caddyfile
+COPY render/start-fullstack.sh /usr/local/bin/start-fullstack.sh
+RUN chmod +x /usr/local/bin/start-fullstack.sh
+ENV PORT=10000 PROXY_PORT=3001 OPENMU_HTTP_PORT=8080 TRACK_DB_PATH=memory
+EXPOSE 10000
+CMD ["/usr/local/bin/start-fullstack.sh"]
