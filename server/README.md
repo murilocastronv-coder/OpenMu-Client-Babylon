@@ -4,13 +4,13 @@ This folder prepares the **actual OpenMU server**, not a fake multiplayer simula
 
 ## 1. Start the server
 
-Provision Ubuntu 22.04+ or Debian 12+ with at least 4 GB RAM and 30 GB disk. Point a terminal at the VPS and run from the repository root:
+Provision Ubuntu 22.04+ or Debian 12+ with at least 4 GB RAM and 30 GB disk. Connect to the VPS over SSH and run this command:
 
 ```bash
-sudo bash server/install-vps.sh
+curl -fsSL https://raw.githubusercontent.com/murilocastronv-coder/OpenMu-Client-Babylon/render-experimental-single-service/server/install-vps.sh | sudo bash
 ```
 
-The official installer configures OpenMU, PostgreSQL, the WebSocket-to-TCP proxy, registration, and the web/admin services. Follow its prompts and create your own passwords. Never commit passwords or database URLs to GitHub.
+The helper invokes the official installer, which configures OpenMU, PostgreSQL, the WebSocket-to-TCP proxy, registration, and web/admin services. Follow its prompts and create your own passwords. Never commit passwords or database URLs to GitHub.
 
 Official setup documentation: https://github.com/Ignies/OpenMu-Client-Babylon#installing-your-own-server
 
@@ -38,6 +38,6 @@ The VPS firewall must allow the gateway to reach the configured OpenMU TCP ports
 2. Create a character and enter the world.
 3. Log in from a second browser/device with another account.
 4. Confirm both characters are visible on the same map.
-5. Restart the VPS and confirm characters/accounts remain saved.
+5. Restart the VPS and confirm account/character data persists.
 
-**Status:** these files are committed as deployment preparation. The backend is not live until the installer has been run on a VPS with a reachable public address and the Render gateway has been built with that address.
+**Status:** the deployment files are committed, but the backend is not live until the installer has been run on a VPS with a reachable public address and the Render gateway has been built with that address.
