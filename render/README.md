@@ -6,7 +6,7 @@ This is a **test profile**, isolated in the `render-experimental-single-service`
 
 - Babylon browser client, served over Render's HTTP port (default 10000).
 - The repository's Bun WebSocket-to-TCP proxy, privately bound to port 3001.
-- Caddy routes `/ws` and `/server.json` to the proxy and serves the static client.
+- Caddy routes `/ws` and `/server.json` to the proxy and serves the static client/server list.
 - The proxy refuses to start unless `ALLOW_TARGETS` is explicitly configured, to avoid creating a public open TCP relay.
 
 ## The real OpenMU server
@@ -20,13 +20,13 @@ The official OpenMU client stack recommends Ubuntu 22.04+/Debian 12+, at least 4
 1. In Render, create a **new** Web Service from this repository.
 2. Select branch `render-experimental-single-service`.
 3. Choose **Docker** runtime and Dockerfile path `render/Dockerfile`.
-4. Set the following environment variables. The first two are also read during the Docker build:
-   - `OPENMU_HOST`: public DNS name or IP of your OpenMU VPS, with no scheme or port.
+4. Set these **runtime environment variables**:
+   - `OPENMU_HOST`: public DNS name or IPv4 address of your OpenMU VPS, with no scheme or port.
    - `GATEWAY_HOST`: the public Render hostname, with no `https://` (for example `openmu-mobile-test.onrender.com`).
    - `ALLOW_TARGETS`: exact allowed OpenMU host/port targets, for example `mu.example.net:44406,mu.example.net:45901`. Replace the example host with your actual host.
-5. Deploy the new service. Do not change or delete the current service until the test is verified.
+5. Deploy the new service. The startup script generates `/serverlist.md` using these values, so no host/IP is committed to GitHub. Do not change or delete the current service until the test is verified.
 
-The Docker build deliberately fails if `OPENMU_HOST` or `GATEWAY_HOST` is missing, rather than shipping a client with a fake server address. The generated client server list uses `wss://GATEWAY_HOST/ws` and ConnectServer port `44406`. Confirm the actual ports in your OpenMU admin panel before deployment.
+The generated client server list uses `wss://GATEWAY_HOST/ws` and ConnectServer port `44406`. Confirm the actual ports in your OpenMU admin panel before deployment.
 
 ## Important OpenMU configuration
 
