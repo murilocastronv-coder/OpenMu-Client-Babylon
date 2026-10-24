@@ -1,0 +1,29 @@
+{
+  auto_https off
+  admin off
+}
+
+:{$CADDY_PORT:10000} {
+  encode zstd gzip
+
+  handle /healthz {
+    respond "ok" 200
+  }
+
+  @proxy path /ws* /server.json
+  handle @proxy {
+    reverse_proxy 127.0.0.1:3001
+  }
+
+  # OpenMU admin/API endpoints. The game client remains at /.
+  @openmu path /admin* /api* /swagger* /_framework* /Identity* /connect* /configuration*
+  handle @openmu {
+    reverse_proxy 127.0.0.1:8080
+  }
+
+  handle {
+    root * /client/dist
+    try_files {path} {path}/ /index.html
+    file_server
+  }
+}
