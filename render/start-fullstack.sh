@@ -30,9 +30,10 @@ export ALLOW_TARGETS="127.127.127.127:44406,127.127.127.127:45901,127.127.127.12
 
 dotnet /openmu/MUnique.OpenMU.Startup.dll "${OPENMU_ARGS[@]}" &
 OPENMU_PID=$!
+PROXY_PID=""
 
 cleanup() {
-  kill "$OPENMU_PID" "$PROXY_PID" 2>/dev/null || true
+  kill "$OPENMU_PID" ${PROXY_PID:+"$PROXY_PID"} 2>/dev/null || true
 }
 trap cleanup EXIT INT TERM
 
