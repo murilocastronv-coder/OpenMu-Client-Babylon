@@ -6,14 +6,9 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 COPY . .
 
-# These are build-time values because the browser client/server list is static.
-ARG OPENMU_HOST
-ARG GATEWAY_HOST
-ARG VITE_SERVER_LIST_URL=/serverlist.md
-RUN test -n "$OPENMU_HOST" || (echo "OPENMU_HOST build argument is required (public VPS host/IP)." >&2; exit 1) && \
-    test -n "$GATEWAY_HOST" || (echo "GATEWAY_HOST build argument is required (Render public hostname, no scheme)." >&2; exit 1) && \
-    sed -e "s/OPENMU_HOST/$OPENMU_HOST/g" -e "s/GATEWAY_HOST/$GATEWAY_HOST/g" render/serverlist.render.md > public/serverlist.md && \
-    VITE_SERVER_LIST_URL="$VITE_SERVER_LIST_URL" bun run build
+# The app fetches this list at runtime; start.sh fills in the real backend hostname.
+COPY render/serverlist.render.md /app/public/serverlist.md
+RUN VITE_SERVER_LIST_URL=/serverlist.md bun run build
 
 FROM oven/bun:1.1.21
 WORKDIR /app
