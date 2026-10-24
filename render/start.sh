@@ -2,6 +2,7 @@
 set -euo pipefail
 
 : "${PORT:=10000}"
+: "${CADDY_PORT:=$PORT}"
 : "${PROXY_PORT:=3001}"
 : "${HOSTNAME:=127.0.0.1}"
 : "${TRACK_DB_PATH:=memory}"
@@ -11,6 +12,7 @@ if [ -z "${ALLOW_TARGETS:-}" ]; then
   exit 1
 fi
 
+export CADDY_PORT
 export PORT="$PROXY_PORT"
 export HOSTNAME="$HOSTNAME"
 export TRACK_DB_PATH
