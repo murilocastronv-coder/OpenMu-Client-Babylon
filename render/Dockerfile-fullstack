@@ -3,14 +3,14 @@
 # and DB_* variables for persistent accounts/progress after provisioning PostgreSQL.
 FROM munique/openmu:latest AS openmu
 
-FROM oven/bun:1.1.21 AS build
+FROM oven/bun:1.2.22 AS build
 WORKDIR /client
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 COPY . .
 RUN bun run build
 
-FROM oven/bun:1.1.21
+FROM oven/bun:1.2.22
 WORKDIR /client
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl gnupg debian-archive-keyring debian-keyring && \
