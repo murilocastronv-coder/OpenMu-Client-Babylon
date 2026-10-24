@@ -28,7 +28,7 @@ else
 fi
 
 # Keep the public relay pinned to only the OpenMU game ports in this same container.
-export ALLOW_TARGETS="127.127.127.127:44406,127.127.127.127:45901,127.127.127.127:45902,127.127.127.127:45903,127.127.127.127:45904,127.127.127.127:45905,127.127.127.127:45906"
+export ALLOW_TARGETS="127.0.0.1:44406,127.0.0.1:45901,127.0.0.1:45902,127.0.0.1:45903,127.0.0.1:45904,127.0.0.1:45905,127.0.0.1:45906"
 
 (cd /openmu && dotnet /openmu/MUnique.OpenMU.Startup.dll "${OPENMU_ARGS[@]}") &
 OPENMU_PID=$!
