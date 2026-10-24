@@ -11,6 +11,8 @@ export ASPNETCORE_URLS="http://+:$OPENMU_HTTP_PORT"
 export RESOLVE_IP
 export PORT="$PROXY_PORT"
 export HOSTNAME=127.0.0.1
+export PRESENCE_PORT=3002
+export PRESENCE_HOST=127.0.0.1
 export TRACK_DB_PATH="${TRACK_DB_PATH:-memory}"
 export ADMIN_OPEN=off
 export ADMIN_DEMO=off
@@ -28,7 +30,7 @@ fi
 # Keep the public relay pinned to only the OpenMU game ports in this same container.
 export ALLOW_TARGETS="127.127.127.127:44406,127.127.127.127:45901,127.127.127.127:45902,127.127.127.127:45903,127.127.127.127:45904,127.127.127.127:45905,127.127.127.127:45906"
 
-dotnet /openmu/MUnique.OpenMU.Startup.dll "${OPENMU_ARGS[@]}" &
+(cd /openmu && dotnet /openmu/MUnique.OpenMU.Startup.dll "${OPENMU_ARGS[@]}") &
 OPENMU_PID=$!
 PROXY_PID=""
 
@@ -42,5 +44,5 @@ sleep 8
 bun run /client/proxy/main.ts &
 PROXY_PID=$!
 
-export CADDY_PORT="$PORT"
+export CADDY_PORT="${PUBLIC_PORT:-10000}"
 exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
