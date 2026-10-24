@@ -1,0 +1,26 @@
+{
+  auto_https off
+  admin off
+}
+
+:{$PORT:10000} {
+  encode zstd gzip
+
+  @proxy path /ws*
+  handle @proxy {
+    reverse_proxy 127.0.0.1:{$PROXY_PORT:3001}
+  }
+
+  @manifest path /server.json
+  handle @manifest {
+    reverse_proxy 127.0.0.1:{$PROXY_PORT:3001}
+  }
+
+  handle {
+    root * /app/dist
+    try_files {path} {path}/ /index.html
+    file_server
+  }
+
+  respond /healthz 200
+}
