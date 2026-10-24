@@ -5,6 +5,7 @@ import { useIsMobile } from '@/controllers/interface/mobile';
 import { MoveButton } from './moveButton';
 import { MenuCluster } from './menuCluster';
 import { SkillPad } from './skillPad';
+import { MobileJoystick } from './joystick';
 
 /**
  * The touch HUD. This one guard is what makes "mobile only" true for
@@ -23,6 +24,7 @@ export const MobileControls = observer(() => {
 
   return (
     <div className="mobile-controls">
+      <MobileJoystick />
       <MoveButton />
       <MenuCluster />
       <SkillPad />
