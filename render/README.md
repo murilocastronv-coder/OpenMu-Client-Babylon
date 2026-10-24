@@ -1,52 +1,51 @@
 # Experimental Render gateway (client + WebSocket proxy)
 
-This is a **test profile**, isolated in the `render-experimental-single-service` branch. It does not change the existing Render service or the default branch.
+This is a **test profile**, isolated in the `render-experimental-single-service` branch. It does not change the default branch or the existing Render service.
 
 ## What this profile runs
 
-- Babylon browser client, built from this repository and served over HTTP on Render's `PORT` (default 10000).
+- Babylon browser client, served over Render's HTTP port (default 10000).
 - The repository's Bun WebSocket-to-TCP proxy, privately bound to port 3001.
 - Caddy routes `/ws` and `/server.json` to the proxy and serves the static client.
 - The proxy refuses to start unless `ALLOW_TARGETS` is explicitly configured, to avoid creating a public open TCP relay.
 
-## Important: this is not the complete MU server
+## The real OpenMU server
 
-Render Web Services expose HTTP/HTTPS and WebSocket traffic on the assigned HTTP port. They do not expose arbitrary public TCP/UDP game ports like a VPS. This image therefore **does not run OpenMU or PostgreSQL inside this container**. It needs a reachable OpenMU ConnectServer/GameServer endpoint and a PostgreSQL database hosted separately. OpenMU must be configured to advertise addresses and ports that the proxy can actually reach. Do not point the client directly at an internal-only address.
+The backend setup files are in [`server/`](../server/README.md). The backend installer starts the official OpenMU stack with PostgreSQL on a Linux VPS. Render Web Services are not suitable for exposing the arbitrary public TCP ports used by the OpenMU game servers, so this gateway must connect to a reachable backend host.
 
-The upstream all-in-one installer uses multiple services (PostgreSQL, OpenMU, proxy, registration, shop, marketplace, admin/web) and recommends at least 4 GB RAM and 30 GB disk. A 2 GB Render service is not a supported or reliable place to collapse that entire stack into one process/container. The registration site and full admin/shop services are not provided by this gateway image.
+The official OpenMU client stack recommends Ubuntu 22.04+/Debian 12+, at least 4 GB RAM and 30 GB disk. See the [official installer guide](https://github.com/Ignies/OpenMu-Client-Babylon#installing-your-own-server).
 
-## Deploy as a separate test service
+## Deploy this gateway as a separate test service
 
 1. In Render, create a **new** Web Service from this repository.
 2. Select branch `render-experimental-single-service`.
 3. Choose **Docker** runtime and Dockerfile path `render/Dockerfile`.
-4. Use at least the 2 GB plan for a basic gateway test; this is not a capacity guarantee for a full MU world.
-5. Add environment variable `ALLOW_TARGETS` with a comma-separated allowlist of the exact host:port pairs the proxy is allowed to dial. Example: `203.0.113.10:44405,203.0.113.10:55901`. Replace the documentation IP with your real reachable server addresses. Never use `0.0.0.0`, wildcards, or arbitrary target rules.
-6. Deploy the new test service. Do not change or delete the current service until the test is verified.
+4. Set the following environment variables. The first two are also read during the Docker build:
+   - `OPENMU_HOST`: public DNS name or IP of your OpenMU VPS, with no scheme or port.
+   - `GATEWAY_HOST`: the public Render hostname, with no `https://` (for example `openmu-mobile-test.onrender.com`).
+   - `ALLOW_TARGETS`: exact allowed OpenMU host/port targets, for example `mu.example.net:44406,mu.example.net:45901`. Replace the example host with your actual host.
+5. Deploy the new service. Do not change or delete the current service until the test is verified.
 
-## Connect the client to the proxy
+The Docker build deliberately fails if `OPENMU_HOST` or `GATEWAY_HOST` is missing, rather than shipping a client with a fake server address. The generated client server list uses `wss://GATEWAY_HOST/ws` and ConnectServer port `44406`. Confirm the actual ports in your OpenMU admin panel before deployment.
 
-The server list entry uses this format (replace the example address and Render hostname):
+## Important OpenMU configuration
 
-```text
-[S6EP3:Forgotten Lands:Browser MU server:en](203.0.113.10:44405@wss://YOUR-TEST-SERVICE.onrender.com/ws)
-- 0: Forgotten Lands
-  - 0: Channel 1
-```
+- In the OpenMU admin panel, initialize the database for Season 6 Episode 3, create at least one game server, and start the ConnectServer and a GameServer.
+- Configure OpenMU's endpoint/IP resolver to advertise the VPS's public hostname/IP, not loopback.
+- The standard fresh OpenMU ports are ConnectServer `44406` for this open-source client and GameServer `45901`. Existing databases may retain older ports. See the [official ports reference](https://openmu-docs.munique.net/reference/ports/).
+- Ensure the VPS firewall allows the gateway to reach every configured ConnectServer/GameServer target. Keep PostgreSQL private.
 
-The host/port before `@` is the OpenMU ConnectServer address as reachable by the proxy, not the Render web-service address. GameServer addresses sent back by OpenMU must also be reachable and allowlisted. The server list is part of the client build; configure it before building the client for your actual server. This branch deliberately does not guess your server IP, ports, database URL, or credentials.
+## What is not included in the gateway
 
-## Database, registration, admin and persistence
+This service does not run OpenMU, PostgreSQL, account registration, cash shop, marketplace or the admin backend. Those are part of the separate backend installer. Proxy tracking defaults to memory in this test profile and resets on restart.
 
-- Keep PostgreSQL on a separate managed database or alongside OpenMU on a VPS; do not put database passwords in Git.
-- The proxy's tracking journal defaults to memory in this profile and resets on restart.
-- This profile does not create accounts, provision GM permissions, or install OpenMU migrations. Those are provided by the upstream multi-service installer and must be configured against the same OpenMU database.
-- Use Render environment variables for secrets. Do not commit passwords, tokens, or production connection strings.
+## Validation checklist
 
-## Multiplayer backend
+- [ ] OpenMU and PostgreSQL report healthy on the VPS.
+- [ ] The client server list shows Forgotten Lands.
+- [ ] One player can log in and enter the world.
+- [ ] A second independent browser/device can log in at the same time.
+- [ ] Both players can see each other on the same map.
+- [ ] Account/character data persists after backend restart.
 
-See [MULTIPLAYER-SERVER.md](./MULTIPLAYER-SERVER.md) for the real OpenMU + PostgreSQL topology, setup steps, and multiplayer validation checklist.
-
-## Why the full stack is not in this Dockerfile
-
-The upstream setup uses Docker Compose, an OpenMU release image and plugins, PostgreSQL, several Bun services, and Caddy. Render deploys a Dockerfile as one service and does not provide Compose networking or public arbitrary game ports for a Web Service. Running PostgreSQL plus OpenMU plus all web services inside a single 2 GB container would be fragile and would still not solve public TCP/UDP exposure. For a real public multiplayer server, keep the browser gateway on Render and run OpenMU + PostgreSQL on a VPS with at least 4 GB RAM, or use the upstream installer on that VPS.
+**Status:** deployment files have been committed, but neither the backend nor this gateway has been deployed/validated yet. A real VPS public address is required to wire the client and proxy to the backend.
