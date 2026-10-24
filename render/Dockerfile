@@ -15,10 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list && \
     apt-get update && apt-get install -y --no-install-recommends caddy && \
     rm -rf /var/lib/apt/lists/*
-COPY --from=build /app/dist ./dist
-COPY proxy ./proxy
-COPY src ./src
-COPY versions ./versions
+COPY --from=build /app /app
 COPY render/Caddyfile /etc/caddy/Caddyfile
 COPY render/start.sh /app/start.sh
 RUN chmod +x /app/start.sh
