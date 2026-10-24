@@ -6,6 +6,10 @@
 :{$PORT:10000} {
   encode zstd gzip
 
+  handle /healthz {
+    respond "ok" 200
+  }
+
   @proxy path /ws*
   handle @proxy {
     reverse_proxy 127.0.0.1:{$PROXY_PORT:3001}
@@ -21,6 +25,4 @@
     try_files {path} {path}/ /index.html
     file_server
   }
-
-  respond /healthz 200
 }
