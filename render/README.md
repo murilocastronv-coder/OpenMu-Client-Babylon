@@ -43,6 +43,10 @@ The host/port before `@` is the OpenMU ConnectServer address as reachable by the
 - This profile does not create accounts, provision GM permissions, or install OpenMU migrations. Those are provided by the upstream multi-service installer and must be configured against the same OpenMU database.
 - Use Render environment variables for secrets. Do not commit passwords, tokens, or production connection strings.
 
+## Multiplayer backend
+
+See [MULTIPLAYER-SERVER.md](./MULTIPLAYER-SERVER.md) for the real OpenMU + PostgreSQL topology, setup steps, and multiplayer validation checklist.
+
 ## Why the full stack is not in this Dockerfile
 
 The upstream setup uses Docker Compose, an OpenMU release image and plugins, PostgreSQL, several Bun services, and Caddy. Render deploys a Dockerfile as one service and does not provide Compose networking or public arbitrary game ports for a Web Service. Running PostgreSQL plus OpenMU plus all web services inside a single 2 GB container would be fragile and would still not solve public TCP/UDP exposure. For a real public multiplayer server, keep the browser gateway on Render and run OpenMU + PostgreSQL on a VPS with at least 4 GB RAM, or use the upstream installer on that VPS.
