@@ -19,6 +19,6 @@ COPY --from=build /app /app
 COPY render/Caddyfile /etc/caddy/Caddyfile
 COPY render/start.sh /app/start.sh
 RUN chmod +x /app/start.sh
-ENV PORT=10000 HOSTNAME=127.0.0.1 PROXY_PORT=3001 TRACK_DB_PATH=memory
+ENV PORT=10000 CADDY_PORT=10000 HOSTNAME=127.0.0.1 PROXY_PORT=3001 TRACK_DB_PATH=memory
 EXPOSE 10000
 CMD ["/app/start.sh"]
