@@ -7,10 +7,31 @@ set -euo pipefail
 : "${HOSTNAME:=127.0.0.1}"
 : "${TRACK_DB_PATH:=memory}"
 
+if [ -z "${OPENMU_HOST:-}" ]; then
+  echo "FATAL: set OPENMU_HOST to the public DNS name/IP of the OpenMU VPS (without scheme or port)." >&2
+  exit 1
+fi
+if [ -z "${GATEWAY_HOST:-}" ]; then
+  echo "FATAL: set GATEWAY_HOST to this Render service's public hostname (without https://)." >&2
+  exit 1
+fi
 if [ -z "${ALLOW_TARGETS:-}" ]; then
   echo "FATAL: ALLOW_TARGETS must list only trusted OpenMU host:port targets; refusing to start an open TCP relay." >&2
   exit 1
 fi
+
+case "$OPENMU_HOST" in *://*|*/*|*:* )
+  echo "FATAL: OPENMU_HOST must be a bare DNS name or IPv4 address, without scheme, path or port." >&2
+  exit 1
+esac
+case "$GATEWAY_HOST" in *://*|*/*|*:* )
+  echo "FATAL: GATEWAY_HOST must be a bare Render hostname, without scheme, path or port." >&2
+  exit 1
+esac
+
+# Generate the browser's server list from runtime environment variables.
+sed -e "s/OPENMU_HOST/$OPENMU_HOST/g" -e "s/GATEWAY_HOST/$GATEWAY_HOST/g" \
+  /app/render/serverlist.render.md > /app/dist/serverlist.md
 
 export CADDY_PORT
 export PORT="$PROXY_PORT"
