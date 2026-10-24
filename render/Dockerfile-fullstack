@@ -13,7 +13,7 @@ RUN bun run build
 FROM oven/bun:1.2.22
 WORKDIR /client
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl gnupg debian-archive-keyring debian-keyring && \
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl gnupg debian-archive-keyring debian-keyring libicu-dev && \
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg && \
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list && \
     apt-get update && apt-get install -y --no-install-recommends caddy && \
