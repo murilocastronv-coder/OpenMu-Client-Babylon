@@ -3,7 +3,7 @@
   admin off
 }
 
-:{$PORT:10000} {
+:{$CADDY_PORT:10000} {
   encode zstd gzip
 
   handle /healthz {
