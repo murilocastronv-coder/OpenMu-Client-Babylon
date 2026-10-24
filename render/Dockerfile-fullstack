@@ -25,6 +25,7 @@ ENV DOTNET_ROOT=/usr/share/dotnet
 ENV PATH="/usr/share/dotnet:${PATH}"
 COPY --from=openmu /app /openmu
 COPY --from=build /client /client
+RUN cp /client/serverlist.md /client/dist/serverlist.md
 COPY render/Caddyfile-fullstack /etc/caddy/Caddyfile
 COPY render/start-fullstack.sh /usr/local/bin/start-fullstack.sh
 RUN chmod +x /usr/local/bin/start-fullstack.sh
